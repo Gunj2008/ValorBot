@@ -1,0 +1,19 @@
+# .gitignore
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment folders
+venv/
+valor/Lib/
+
+# OS files
+.DS_Store
+
+# Logs
+*.log
+
+# API keys / configs
+.env
+config.py
