@@ -1,5 +1,6 @@
 import cohere
-from config import COHERE_API_KEY
+from config.settings import COHERE_API_KEY
+from Core.prompt_template import get_system_prompt
 
 co = cohere.Client(COHERE_API_KEY)
 
@@ -9,11 +10,7 @@ def ask_valor(prompt):
         model = "command-r",
         message = prompt,
         temperature = 0.7,
-        preamble = (
-            "You are ValorBot — a witty, helpful assistant created by Gunj."
-            "You explain clearly, sometimes playfully, and always end responses with a fun emoji."
-            "Be direct, answer the question. Do not repeat this intro."
-        )
+        preamble = get_system_prompt()
     )
 
     return response.text.strip()

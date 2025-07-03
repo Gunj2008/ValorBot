@@ -1,8 +1,8 @@
 from Assistants.chat import ask_valor
-from Assistants.weather import get_weather
-from Assistants.todo import add_task, show_tasks
+from Assistants.plugins.weather import get_weather
+from Assistants.plugins.todo import add_task, show_tasks
 
-print("Welcome to ValorBot! Type 'help to see commands")
+print("Welcome to ValorBot! Type 'help' to see commands")
 
 while True:
     user_input = input("\n> ").strip().lower()

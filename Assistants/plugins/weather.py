@@ -1,5 +1,5 @@
 import requests
-from config import OPENWEATHER_API_KEY
+from config.settings import OPENWEATHER_API_KEY
 
 def get_weather(city):
     url = f"http://api.openweathermap.org/data/2.5/weather?q={city}&appid={OPENWEATHER_API_KEY}&units=metric"
