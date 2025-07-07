@@ -33,8 +33,9 @@ while True:
   exit / quit          
 """)
         
-    elif any(phrase in user_input for phrase in ["remember", "my name", "i live", "i like"]):
-        print(extract_memory_updates(user_input))
-        
     else:
-        print(ask_valor(user_input))
+        response = extract_memory_updates(user_input)
+        if "update your profile" in response.lower():
+            print(response)
+        else:
+            print(ask_valor(user_input))

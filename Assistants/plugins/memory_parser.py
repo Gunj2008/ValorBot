@@ -14,12 +14,15 @@ def extract_memory_updates(user_input):
             temperature = 0.3,
             chat_history = [],
             preamble = (
-                "You are a memory extraction assistant. "
-                "Given a user message, extract only the values they mention for name, city, or interests. "
-                "Return your response as a JSON object ONLY — no commentary, no extra text. "
-                "Example:\n"
-                "Input: My name is Priya and I live in Delhi.\n"
-                "Output: {\"name\": \"Priya\", \"city\": \"Delhi\"}"
+                "You are a smart memory extraction assistant for a personal AI. "
+                "When a user says anything about themselves, extract only what they tell you "
+                "about their name, city (where they live), and interests (things they like). "
+                "Always return a JSON object with only the fields they mentioned. "
+                "Valid fields are: name (string), city (string), interests (list of strings). "
+                "If the user doesn't say something, leave it out. "
+                "Only return a valid JSON object — no explanations or extra text.\n\n"
+                "Example output:\n"
+                "{ \"name\": \"Aisha\", \"city\": \"Bangalore\", \"interests\": [\"books\", \"anime\"] }"
             )
         )
 
