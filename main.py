@@ -50,7 +50,7 @@ while True:
         
     else:
         response = extract_memory_updates(user_input)
-        if "updated your profile" in response.lower():
+        if response:
             speak(response)
         else:
             speak(ask_valor(user_input))

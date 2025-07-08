@@ -31,10 +31,13 @@ def extract_memory_updates(user_input):
 
         parsed = json.loads(clean_output)
 
-        for key, value in parsed.items():
-            update_profile(key, value)
-
-        return f"Got it! I've updated your profile with: {', '.join(parsed.keys())}"
+        if parsed:
+            for key, value in parsed.items():
+                update_profile(key, value)
+            return f"Got it! I've updated your profile with: {', '.join(parsed.keys())}"
+        
+        else:
+            return ""
     
     except Exception as e:
         return f"Couldn't understand what to remember. ({str(e)})"
