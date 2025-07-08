@@ -2,8 +2,14 @@ from Assistants.chat import ask_valor
 from Assistants.plugins.weather import get_weather
 from Assistants.plugins.todo import add_task, show_tasks
 from Assistants.plugins.memory_parser import extract_memory_updates
+from Assistants.plugins.memory import get_profile
+from Assistants.plugins.memory import load_profile
 
-print("Welcome to ValorBot! Type 'help' to see commands")
+profile = load_profile()
+if profile['name']:
+    print(f"Welcome back, {profile['name']}!")
+else:
+    print("Welcome to ValorBot! Type 'help' to see commands")
 
 while True:
     user_input = input("\n> ").strip().lower()
@@ -32,6 +38,9 @@ while True:
   [any question]
   exit / quit          
 """)
+        
+    elif user_input.lower() in ["what do you remember about me", "show my memory", "my profile"]:
+        print(get_profile())
         
     else:
         response = extract_memory_updates(user_input)
