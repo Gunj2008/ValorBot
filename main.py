@@ -4,6 +4,9 @@ from Assistants.plugins.todo import add_task, show_tasks
 from Assistants.plugins.memory_parser import extract_memory_updates
 from Assistants.plugins.memory import get_profile
 from Assistants.plugins.memory import load_profile
+from Assistants.plugins.voice_io import listen, speak
+
+use_voice = input("Do you want to use voice mode ? (y/n): ").strip().lower() == 'y'
 
 profile = load_profile()
 if profile['name']:
@@ -12,25 +15,28 @@ else:
     print("Welcome to ValorBot! Type 'help' to see commands")
 
 while True:
-    user_input = input("\n> ").strip().lower()
+    user_input = listen() if use_voice else input("\n> ").strip().lower()
+
+    if not user_input:
+        continue
 
     if user_input in ["quit", "exit"]:
-        print("Goodbye!")
+        speak("Goodbye!")
         break
 
     elif user_input.startswith("weather in "):
         city = user_input.replace("weather in ", "").strip()
-        print(get_weather(city))
+        speak(get_weather(city))
 
     elif user_input.startswith("add task "):
         task = user_input.replace("add task ", "").strip()
-        print(add_task(task))
+        speak(add_task(task))
 
     elif user_input == "show tasks":
-        print(show_tasks())
+        speak(show_tasks())
 
     elif user_input == 'help':
-        print("""
+        speak("""
   Commands:
   weather in [city]
   add task [task]
@@ -40,11 +46,11 @@ while True:
 """)
         
     elif user_input.lower() in ["what do you remember about me", "show my memory", "my profile"]:
-        print(get_profile())
+        speak(get_profile())
         
     else:
         response = extract_memory_updates(user_input)
-        if "update your profile" in response.lower():
-            print(response)
+        if "updated your profile" in response.lower():
+            speak(response)
         else:
-            print(ask_valor(user_input))
+            speak(ask_valor(user_input))
