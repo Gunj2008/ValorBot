@@ -23,9 +23,20 @@ def update_profile(field, value):
 
 def get_profile():
     p = load_profile()
-    return(
-        f"Name: {p['name'] or 'Unknown'}\n"
-        f"City: {p['city'] or 'Unkonwn'}\n"
-        f"Interests: {','.join(p['interests']) or 'None'}\n"
-        f"Tone: {p['tone']}"
-    )
+    
+    parts = []
+
+    if p['name'] and p['city']:
+        parts.append(f"You're {p['name']} from {p['city']}.")
+    elif p['name']:
+        parts.append(f"YOu're {p['name']}.")
+    elif p['city']:
+        parts.append(f"You are from {p['city']}.")
+    
+    if p['interests']:
+        interests = ','.join(p['interests'])
+        parts.append(f"You enjoy {interests}.")
+
+    parts.append(f"I'm talking to you in a {p['tone']} tone.")
+
+    return " ".join(parts) if parts else "I don't know anything about you yet."
