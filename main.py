@@ -5,6 +5,7 @@ from Assistants.plugins.memory_parser import extract_memory_updates
 from Assistants.plugins.memory import get_profile
 from Assistants.plugins.memory import load_profile
 from Assistants.plugins.voice_io import listen, speak
+from Assistants.plugins.email_summary import fetch_recent_emails, summarise_emails
 
 use_voice = input("Do you want to use voice mode ? (y/n): ").strip().lower() == 'y'
 
@@ -47,6 +48,11 @@ while True:
         
     elif user_input.lower() in ["what do you remember about me", "show my memory", "my profile"]:
         speak(get_profile())
+
+    elif "summarise my inbox" in user_input:
+        emails = fetch_recent_emails()
+        summary = summarise_emails(emails)
+        print("Email Summary: \n", summary)
         
     else:
         response = extract_memory_updates(user_input)
