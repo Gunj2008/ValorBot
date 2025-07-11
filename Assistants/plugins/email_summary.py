@@ -1,57 +1,106 @@
-from imapclient import IMAPClient
-import pyzmail
+import imaplib
+import email
+from email.header import decode_header
 import datetime
-import ssl
-import cohere
 from config.settings import COHERE_API_KEY, EMAIL, APP_PASSWORD
+import cohere
+
+def clean_header(header_val):
+    if header_val:
+        return "Unknown"
+    
+    try:
+        decoded, encoding = decode_header(header_val)[0]
+        return decoded.decode(encoding or 'utf-8') if isinstance(decoded, bytes) else decoded
+    except Exception:
+        return str(header_val)
 
 def fetch_recent_emails(limit = 5):
-    context = ssl.create_default_context()
-    server = IMAPClient("imap.gmail.com", ssl=True, ssl_context=context)
-    server.login(EMAIL, APP_PASSWORD)
-    server.select_folder("INBOX", readonly=True)
+    try:
+        print("📡 Connecting to Gmail...")
+        mail = imaplib.IMAP4_SSL("imap.gamil.com")
+        mail.login(EMAIL, APP_PASSWORD)
+        mail.select("inbox")
 
-    since = datetime.datetime.now() - datetime.timedelta(days=3)
-    messages = server.search(["SINCE"], since.strftime("%d-%b-%Y"))
+        date = (datetime.date.today() - datetime.timedelta(days=3)).strftime("%d-%b-%Y")
+        print("🕒 Searching since:", date)
+        result, data = mail.search(None, 'SINCE', date)
 
-    fetched = server.fetch(messages, ["BODY[]", "FLAGS"])
-    emails = []
+        if result != "OK" or not data or not data[0]:
+            raise Exception("No recent emails found.")
 
-    for uid in sorted(fetched.keys(), reverse=True)[:limit]:
-        msg = pyzmail.PyzMessage.factory(fetched[uid][b"BODY[]"])
-        subject = msg.get_subject()
-        sender = msg.get_addresses("from")[0][1]
-        text = msg.text_part.get_payload().decode() if msg.text_part else ""
-        emails.append({
-            "from": sender,
-            "subject": subject,
-            "text": text
-        })
+        ids = data[0].split()
+        recent_ids = ids[-limit:]
+        print(f"📬 Found {len(recent_ids)} email(s)")
 
-    server.logout()
-    return emails
+        emails = []
+
+        for i in recent_ids:
+            res, msg = mail.fetch(i, "(RFC822)")
+
+            if res != "OK":
+                continue
+
+            raw_email = msg[0][1]
+            msg = email.message_from_bytes(raw_email)
+
+            subject = clean_header(msg.get("Subjects"))
+            sender = clean_header(msg.get("From"))
+            body = ""
+
+            if msg.is_multipart():
+                for part in msg.walk():
+                    if part.get_content_type() == "text/plain":
+                        charset = part.get_content_charset() or 'utf-8'
+                        # body = part.get_payload(decode=True).decode(charset, errors="ignore")
+                        payload = part.get_payload(decode=True)
+                        if payload:
+                            body = payload.decode(charset, errors="ignore")
+                            break
+
+            else:
+                # body = msg.get_payload(decode=True).decode(errors="ignore")
+                payload = msg.get_payload(decode=True)
+                if payload:
+                    body = payload.decode(charset, errors="ignore")
+
+            email.append({
+                "from": sender,
+                "subject": subject,
+                "body": body[:500]
+            })
+
+            mail.logout()
+            return emails
+        
+    except Exception as e:
+        return [{
+            "from": "System",
+            "subject": "Error fetching emails",
+            "body": f"{type(e).__name__}: {str(e)}"
+        }]
     
-def summarise_emails(emails):
+def summarize_emails(emails):
     if not emails:
-        return "No recent emails to summarise."
+        return "No recent emails found."
     
     co = cohere.Client(COHERE_API_KEY)
 
-    combined_text = "\n\n".join(
-        f"From: {e['from']} \nSubject: {e['subject']} \nBody: {e['body'][:500]}" for e in emails
+    combined = "\n\n".join(
+        f"From: {email['from']} \nSubject: {email['subject']} \nBody: {email['body']}" for email in emails
     )
 
-    system_prompt = (
-        "You're a helpful assistant. Summarize the following emails briefly. "
-        "Use bullet points and mention the sender and subject where relevant."
+    prompt = (
+        "You're an assistant summarizing recent emails. Briefly summarize each message in a friendly tone. "
+        "Mention who it's from and the subject. Use bullet points."
     )
 
     response = co.chat(
         model = "command-r",
-        maessage = combined_text,
+        message = combined,
         temperature = 0.5,
         chat_history = [],
-        preamble = system_prompt
+        preamble = prompt
     )
 
     return response.text.strip()
