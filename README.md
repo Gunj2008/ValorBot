@@ -11,13 +11,12 @@
 
 ## 🏗️ Features
 
-- 🧠 **LLM-based memory system** – Remembers user info like name, city, and interests from natural language
-- ⛅ **Weather plugin** – Gets current weather using OpenWeather API
-- ✅ **To-do manager** – Add and show personal tasks
-- 💬 **Conversational AI** – Uses Cohere chat model to handle questions and fallback responses
-- 🔐 **Secure config** – API keys stored in `.env`, loaded via `python-dotenv`
-- 🗂️ **Modular folder structure** – Easy to expand with new plugins
-- 🧪 **Debug friendly** – Includes raw output logging for LLM responses
+- 🔍 Ask anything — powered by LLMs
+- 📬 Summarize Gmail inbox
+- 🧠 Personal memory: name, city, interests
+- 🌦 Real-time weather
+- 🧾 To-do list
+- 🗣 Voice input/output
 
 ---
 
