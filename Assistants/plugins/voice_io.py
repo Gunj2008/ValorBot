@@ -1,4 +1,5 @@
 import pyttsx3
+import threading
 import speech_recognition as sr
 
 engine = pyttsx3.init()
@@ -6,6 +7,9 @@ engine.setProperty('rate', 175)
 
 def speak(text):
     print(f"ValorBot: {text}")
+    threading.Thread(target = _speak_sync, args = (text,), daemon = True).start()
+
+def _speak_sync(text):
     engine.say(text)
     engine.runAndWait()
 
