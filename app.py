@@ -37,7 +37,11 @@ def valor_response(user_input):
         return get_profile()
     
     elif any(p in user_input for p in ["remember", "my name", "i live", "i like"]):
-        return extract_memory_updates(user_input)
+        result = extract_memory_updates(user_input)
+
+        if result.startswith("Couldn't understand"):
+            return ask_valor(user_input)
+        return result
     
     else:
         return ask_valor(user_input)
