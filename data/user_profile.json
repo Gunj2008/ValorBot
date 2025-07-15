@@ -1,8 +1,6 @@
 {
-  "name": "John",
-  "city": "Mumbai",
-  "interests": [
-    "coding"
-  ],
+  "name": "Rohan",
+  "city": null,
+  "interests": null,
   "tone": "casual"
 }

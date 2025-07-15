@@ -1,17 +1,53 @@
 import pyttsx3
+from gtts import gTTS
+from playsound import playsound
 import threading
 import speech_recognition as sr
+import queue
+import time
+import uuid
+import os
 
 engine = pyttsx3.init()
 engine.setProperty('rate', 175)
 
+speech_queue = queue.Queue()
+
+def speech_worker():
+    while True:
+
+        try:
+            text = speech_queue.get()
+
+            if text is None:
+                break
+
+            engine.say(text)
+            engine.runAndWait()
+            speech_queue.task_done()
+
+        except Exception as e:
+            print(f"Speach thread error: {e}")
+            time.sleep(0.5)
+
+if not hasattr(engine, "_speech_thread_started"):
+    threading.Thread(target = speech_worker, daemon = True).start()
+    engine._speech_thread_started = True
+
 def speak(text):
     print(f"ValorBot: {text}")
-    threading.Thread(target = _speak_sync, args = (text,), daemon = True).start()
+    if not text.strip():
+        return
+    
+    try:
+        filename = f"temp_{uuid.uuid4().hex}.mp3"
+        gTTS(text).save(filename)
+        playsound(filename)
+        os.remove(filename)
 
-def _speak_sync(text):
-    engine.say(text)
-    engine.runAndWait()
+    except Exception as e:
+        print({f"Speech error: {e}"})
+        
 
 def listen():
     recognizer = sr.Recognizer()
