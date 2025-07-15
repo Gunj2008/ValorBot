@@ -60,7 +60,7 @@ def transcribe_audio(audio_path):
     
 
 def handle_voice(audio_path):
-    transcript = transcribe_audio
+    transcript = transcribe_audio(audio_path)
     response = valor_response(transcript)
     speak(response)
     return transcript, response

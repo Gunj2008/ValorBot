@@ -7,7 +7,14 @@ def load_profile():
     if not os.path.exists(PROFILE_PATH):
         return {"name" : None, "city" : None, "interests" : [], "tone" : "casual"}
     with open(PROFILE_PATH, "r") as file:
-        return json.load(file)
+        profile = json.load(file)
+
+        if profile.get("interests") is None:
+            profile["interests"] = []
+        if profile.get("tone") is None:
+            profile["tone"] = "casual"
+            
+        return profile
     
 def save_profile(profile):
     with open(PROFILE_PATH, "w") as file:
@@ -15,10 +22,15 @@ def save_profile(profile):
     
 def update_profile(field, value):
     profile = load_profile()
-    if field == "interests" and isinstance(value, list):
-        profile["interests"] = list(set(profile["interests"] + value))
+    if field == "interests":
+        if not isinstance(profile["interests"], list):
+            profile["interests"] = []
+        if isinstance(value, str):
+            profile["interests"] = list(set(profile["interests"] + value))
+
     else:
         profile[field] = value
+        
     save_profile(profile)
 
 def get_profile():
