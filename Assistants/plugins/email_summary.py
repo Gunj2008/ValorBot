@@ -4,9 +4,10 @@ from email.header import decode_header
 import datetime
 from config.settings import COHERE_API_KEY, EMAIL, APP_PASSWORD
 import cohere
+import html2text
 
 def clean_header(header_val):
-    if header_val:
+    if not header_val:
         return "Unknown"
     
     try:
@@ -18,7 +19,7 @@ def clean_header(header_val):
 def fetch_recent_emails(limit = 5):
     try:
         print("📡 Connecting to Gmail...")
-        mail = imaplib.IMAP4_SSL("imap.gamil.com")
+        mail = imaplib.IMAP4_SSL("imap.gmail.com")
         mail.login(EMAIL, APP_PASSWORD)
         mail.select("inbox")
 
@@ -44,36 +45,58 @@ def fetch_recent_emails(limit = 5):
             raw_email = msg[0][1]
             msg = email.message_from_bytes(raw_email)
 
-            subject = clean_header(msg.get("Subjects"))
+            subject = clean_header(msg.get("Subject"))
             sender = clean_header(msg.get("From"))
             body = ""
 
             if msg.is_multipart():
                 for part in msg.walk():
-                    if part.get_content_type() == "text/plain":
-                        charset = part.get_content_charset() or 'utf-8'
-                        # body = part.get_payload(decode=True).decode(charset, errors="ignore")
-                        payload = part.get_payload(decode=True)
-                        if payload:
-                            body = payload.decode(charset, errors="ignore")
-                            break
+                    content_type = part.get_content_type()
+                    charset = part.get_content_charset() or 'utf-8'
+                    payload = part.get_payload(decode=True)
+                    
+                    if  not payload:
+                        continue
+
+                    decoded = payload.decode(charset, errors="ignore")
+
+                    if content_type == "text/plain":
+                        body = decoded
+                        break
+                    elif content_type == "text/html" and not body:
+                        body = html2text.html2text(decoded)
+
+                        lines = body.splitlines()
+                        cleaned_lines = [
+                            line.strip()
+                            for line in lines
+                            if line.strip()
+                            and not line.strip().startswith('![')
+                            and not line.lower().startswith('unsubscribe')
+                            and "view this email" not in line.lower()
+                        ]
+                        body = "\n".join(cleaned_lines[:20])
+                
+                if not body:
+                    return "[No readable content found]"
 
             else:
-                # body = msg.get_payload(decode=True).decode(errors="ignore")
+                charset = msg.get_content_charset() or 'utf-8'
                 payload = msg.get_payload(decode=True)
                 if payload:
                     body = payload.decode(charset, errors="ignore")
 
-            email.append({
+            emails.append({
                 "from": sender,
                 "subject": subject,
                 "body": body[:500]
             })
 
-            mail.logout()
-            return emails
+        mail.logout()
+        return emails
         
     except Exception as e:
+        print("❌ ERROR:", type(e).__name__, "-", str(e))
         return [{
             "from": "System",
             "subject": "Error fetching emails",

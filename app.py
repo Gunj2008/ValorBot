@@ -36,15 +36,15 @@ def valor_response(user_input):
     elif any (phrase in user_input for phrase in ["what do you remember about me", "show my memory", "my profile"]):
         return get_profile()
     
-    elif any(p in user_input for p in ["remember", "my name", "i live", "i like"]):
-        result = extract_memory_updates(user_input)
-
-        if result.startswith("Couldn't understand"):
-            return ask_valor(user_input)
-        return result
+    # elif any(p in user_input for p in ["remember", "my name", "i live", "i like"]):
+    #     return extract_memory_updates(user_input)
     
     else:
-        return ask_valor(user_input)
+        response = extract_memory_updates(user_input)
+        if response:
+            return response
+        else:
+            return ask_valor(user_input)
     
     
 def transcribe_audio(audio_path):
