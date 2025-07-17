@@ -22,32 +22,60 @@ while True:
         continue
 
     if user_input in ["quit", "exit"]:
-        speak("Goodbye!")
-        break
+        if use_voice == 'y':
+            speak("Goodbye!")
+            break
+        else:
+            print("Goodbye!")
+            break
 
     elif user_input.startswith("weather in "):
         city = user_input.replace("weather in ", "").strip()
-        speak(get_weather(city))
+
+        if use_voice == 'y':
+            speak(get_weather(city))
+        else:
+            print(get_weather(city))
 
     elif user_input.startswith("add task "):
         task = user_input.replace("add task ", "").strip()
-        speak(add_task(task))
+
+        if use_voice == 'y':
+            speak(add_task(task))
+        else:
+            print(add_task(task))
 
     elif user_input == "show tasks":
-        speak(show_tasks())
+        if use_voice == 'y':
+            speak(show_tasks())
+        else:
+            print(show_tasks())
 
     elif user_input == 'help':
-        speak("""
-  Commands:
-  weather in [city]
-  add task [task]
-  show tasks
-  [any question]
-  exit / quit          
-""")
+        if use_voice == 'y':
+            speak("""
+    Commands:
+    weather in [city]
+    add task [task]
+    show tasks
+    [any question]
+    exit / quit          
+    """)
+        else:
+            print("""
+    Commands:
+    weather in [city]
+    add task [task]
+    show tasks
+    [any question]
+    exit / quit          
+    """)
         
     elif user_input.lower() in ["what do you remember about me", "show my memory", "my profile"]:
-        speak(get_profile())
+        if use_voice == 'y':
+            speak(get_profile())
+        else:
+            print(get_profile())
 
     elif "summarise my inbox" in user_input:
         emails = fetch_recent_emails(limit=5)
@@ -56,7 +84,14 @@ while True:
         
     else:
         response = extract_memory_updates(user_input)
-        if response:
-            speak(response)
+
+        if use_voice == 'y':
+            if response:
+                speak(response)
+            else:
+                speak(ask_valor(user_input))
         else:
-            speak(ask_valor(user_input))
+            if response:
+                print(response)
+            else:
+                print(ask_valor(user_input))
