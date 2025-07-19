@@ -8,6 +8,7 @@ from Assistants.plugins.memory import load_profile
 from Assistants.plugins.voice_io import listen, speak
 from Assistants.plugins.email_summary import fetch_recent_emails, summarize_emails
 from Assistants.plugins.doc_summary import extract_text_from_pdf, extract_text_from_doc, summarise_text
+from Assistants.plugins.conversation import handle_multi_turn, clear_chat_memory
 
 use_voice = input("Do you want to use voice mode ? (y/n): ").strip().lower() == 'y'
 
@@ -112,13 +113,11 @@ while True:
     else:
         response = extract_memory_updates(user_input)
 
-        if use_voice == 'y':
-            if response:
-                speak(response)
-            else:
-                speak(ask_valor(user_input))
+        if response:
+            speak(response) if use_voice else print(response)
+        elif user_input == "reset memory":
+            clear_chat_memory()
+            speak("Memory cleared.") if use_voice else print("Memory cleared.")
         else:
-            if response:
-                print(response)
-            else:
-                print(ask_valor(user_input))
+            reply = handle_multi_turn(user_input)
+            speak(reply) if use_voice else print(reply)
