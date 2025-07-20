@@ -8,6 +8,7 @@ from Assistants.plugins.email_summary import fetch_recent_emails, summarize_emai
 from Assistants.plugins.voice_io import speak
 import speech_recognition as sr
 from Assistants.plugins.doc_summary import extract_text_from_pdf, extract_text_from_doc, summarise_text
+from Assistants.plugins.conversation import handle_multi_turn, clear_chat_memory
 
 def valor_response(user_input):
 
@@ -41,8 +42,11 @@ def valor_response(user_input):
         response = extract_memory_updates(user_input)
         if response:
             return response
+        elif user_input == "reset memory":
+            clear_chat_memory()
+            return "Memory cleared."
         else:
-            return ask_valor(user_input)
+            return handle_multi_turn(user_input)
         
 
 def summarize_uploaded_file(file):
